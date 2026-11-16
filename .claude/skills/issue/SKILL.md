@@ -21,6 +21,7 @@ Run everything from the repo root. `<month>` is `YYYY-MM` (default: this month).
 - The source's words appear only through `<x-src item="SLUG" from="A" to="B"></x-src>` or `<x-src item="SLUG" b="N"></x-src>`. Assembly replaces each with those blocks, verbatim. Never type the source's words yourself.
 - Your own words always sit inside an element with class `editor`.
 - Every page number is printed in an element with class `folio`, two pages to a spread, the front being pages 0–1. The reader finds a typed page number by these.
+- Every page but the openers carries running heads: `<div class="runhead l">Projections · Nº NN</div>` on the left page and the chapter's title in `runhead r`. The reader makes the left one, the masthead, a way back to the contents.
 - Each contents row links to its chapter's first page: `<a href="#p<page>">`. Make the row's numeral and title links, both to the page the row prints.
 - An image that couldn't be downloaded keeps its original link and `data-missing="1"`. Leave it placed: the check doesn't count it as broken.
 - Paths in chapters are relative to `issues/<month>/`: item images are `items/<slug>/img/…`, and the front drawing is `../../assets/front.jpg`.

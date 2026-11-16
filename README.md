@@ -122,7 +122,7 @@ mechanical parts:
    across as many spreads as it needs, in its own colours and the house type.
 3. **Assemble, bake, check.** `assemble` binds the chapters into `index.html`, `bake` turns heavy drawings into
    images so the issue turns fast, and `check` fails on any overflow, hidden block, broken image or faked type.
-4. **Open.** `open` opens the issue in your browser; the reader remembers the spread you stopped at, per issue. Click a row of the contents to go to its chapter, type a page number and press ⏎ to go to that page, and press Home (fn ← on a Mac) to go back to the front. `#s55` in the address is spread 55, `#p108` page 108.
+4. **Open.** `open` opens the issue in your browser; the reader remembers the spread you stopped at, per issue. Click a row of the contents to go to its chapter, type a page number and press ⏎ to go to that page, and click the masthead at the top left of any page to go back to the contents (Back returns you), and press Home (fn ← on a Mac) to go to the front. `#s55` in the address is spread 55, `#p108` page 108.
 5. **Archive.** `archive` clears the inbox for next time.
 
 Your issues stay on your machine: `issues/` is not tracked.

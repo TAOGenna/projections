@@ -166,6 +166,10 @@
     e.preventDefault();
   });
   addEventListener('click', e => {
+    if (e.target.closest('.runhead.l')) {  // the masthead goes back to the contents; Back returns here
+      location.hash = 's' + (spreads.findIndex(s => s.dataset.item === '_contents') + 1 || 1);
+      return;
+    }
     if (e.target.closest('a, button, input, summary, video')) return;
     step(e.clientX > innerWidth / 2 ? 1 : -1);
   });

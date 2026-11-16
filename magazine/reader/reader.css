@@ -13,6 +13,9 @@ math { font-family: "Latin Modern Math", "STIX Two Math", math; }
 /* the contents' rows are links to their pages */
 [data-item="_contents"] a { color: inherit; text-decoration: none; }
 [data-item="_contents"] a:hover { opacity: .55; }
+/* the masthead, on every left page, goes back to the contents */
+.runhead.l { cursor: pointer; }
+.runhead.l:hover { opacity: .55; }
 /* a page number being typed (reader.js) */
 .goto {
   position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 9; padding: 10px 20px;
