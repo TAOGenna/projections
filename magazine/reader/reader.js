@@ -1,4 +1,5 @@
-// The reader: shows one spread at a time, scaled to the window. The place is kept in the URL as #s{n}.
+// The reader: shows one spread at a time, scaled to the window. The place is kept in the URL as #s{n}, and
+// remembered per issue, so reopening an issue resumes where you left off.
 // Stepping to the next or previous spread turns the page: the half sheet bends over the gutter like paper.
 (() => {
   const deck = document.querySelector('.deck');
@@ -9,6 +10,9 @@
 
   const embedded = window.top !== window.self;  // inside another page's frame: no desk, no margin
   if (embedded) document.documentElement.classList.add('embedded');
+  const KEY = 'projections:' + location.pathname;  // one place kept per issue; an embedded issue keeps none
+  const remembered = () => { try { return parseInt(localStorage.getItem(KEY), 10) || 0; } catch { return 0; } };
+  const remember = n => { if (!embedded) try { localStorage.setItem(KEY, n); } catch {} };
 
   function fit() {
     const m = embedded ? 0 : 48;
@@ -20,6 +24,7 @@
     i = Math.max(0, Math.min(spreads.length - 1, n));
     spreads.forEach((el, k) => el.classList.toggle('on', k === i));
     if (location.hash !== '#s' + (i + 1)) history.replaceState(null, '', '#s' + (i + 1));
+    remember(i);
     warm(i);
   }
   // decode the neighbours' images in idle time, so a turn never waits on a picture being decoded
@@ -139,5 +144,5 @@
   addEventListener('hashchange', () => show(fromHash()));
   addEventListener('resize', fit);
   fit();
-  show(fromHash());
+  show(location.hash || embedded ? fromHash() : remembered());  // an address wins; otherwise where you left off
 })();

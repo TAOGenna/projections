@@ -21,7 +21,7 @@ browser. Nothing is summarised and nothing is cut.
   <tr>
     <td width="33%" valign="top"><b>I &nbsp;·&nbsp; SAVE</b><br><sub>Paste links into <code>inbox.md</code> as you find them, one per line.</sub></td>
     <td width="33%" valign="top"><b>II &nbsp;·&nbsp; RUN</b><br><sub>Type <code>/issue</code> to your agent when you want an issue. Every link is captured whole and given an opener.</sub></td>
-    <td width="33%" valign="top"><b>III &nbsp;·&nbsp; READ</b><br><sub>Open <code>issues/&lt;month&gt;/index.html</code>. Spreads turn with ← →, and the issue prints.</sub></td>
+    <td width="33%" valign="top"><b>III &nbsp;·&nbsp; READ</b><br><sub>It opens in your browser, and <code>magazine open</code> brings it back where you left off. Spreads turn with ← →, and the issue prints.</sub></td>
   </tr>
 </table>
 
@@ -38,7 +38,13 @@ cd projections && brew install uv poppler yt-dlp
 uv sync && uv run playwright install chromium
 ```
 
-Then put links in `inbox.md`, open your agent in the folder, and type `/issue`.
+Then put links in `inbox.md`, open your agent in the folder, and type `/issue`. When it's done, the issue opens in
+your browser. To come back to it any time, right where you left off:
+
+```bash
+uv run python -m magazine open            # the latest issue
+uv run python -m magazine open 2026-11    # an earlier one
+```
 
 <br>
 
@@ -116,7 +122,8 @@ mechanical parts:
    across as many spreads as it needs, in its own colours and the house type.
 3. **Assemble, bake, check.** `assemble` binds the chapters into `index.html`, `bake` turns heavy drawings into
    images so the issue turns fast, and `check` fails on any overflow, hidden block, broken image or faked type.
-4. **Archive.** `archive` clears the inbox for next time.
+4. **Open.** `open` opens the issue in your browser; the reader remembers the spread you stopped at, per issue.
+5. **Archive.** `archive` clears the inbox for next time.
 
 Your issues stay on your machine: `issues/` is not tracked.
 
@@ -142,7 +149,6 @@ next:
 - [ ] **Phones.** The landing and the reader scale down whole; narrow screens deserve a layout of their own.
 - [ ] **Your notes kept with the issue.** Highlights and margin notes saved beside the issue, on your machine.
 - [ ] **An archive.** Every past issue in one place, searchable across all of them.
-- [ ] **The site online.** The landing served by GitHub Pages at taogenna.github.io/projections.
 
 ## Credits
 

@@ -46,7 +46,7 @@ Run everything from the repo root. `<month>` is `YYYY-MM` (default: this month).
    - Run `uv run python -m magazine assemble`, then `uv run python -m magazine bake` (heavy decoration becomes images, so turning pages stays smooth), then `uv run python -m magazine check --shots`.
    - Fix every problem by moving block ranges between spreads or adding spreads. Never cut text.
    - Look at `proofs/*.png`, one per spread, and fix whatever reads badly against `policies.md`: cramped columns, orphaned headings, a frame that drifted, an item that lost its world.
-7. **Hand it over.** Tell the user the issue is ready at `issues/<month>/index.html` (open it in a browser; ← → turn spreads). Only after they confirm, run `uv run python -m magazine archive` to move the used lines out of `inbox.md`.
+7. **Hand it over.** Run `uv run python -m magazine open` to open the issue in the user's browser, and tell them it is at `issues/<month>/index.html` (← → turn spreads) and that `uv run python -m magazine open` brings it back any time, at the spread they stopped on (`open YYYY-MM` for an earlier issue). Only after they confirm, run `uv run python -m magazine archive` to move the used lines out of `inbox.md`.
 
 ## Never
 
