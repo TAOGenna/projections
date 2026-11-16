@@ -6,7 +6,7 @@
 
 <p align="center"><i>A magazine your agents make from what you save and bookmark.</i></p>
 
-<p align="center"><sub>AN AGENT SKILL &nbsp;·&nbsp; <a href="#nº-01">Nº 01</a> &nbsp;·&nbsp; <a href="#nº-00">Nº 00</a> &nbsp;·&nbsp; <a href="#set-up">SET UP</a> &nbsp;·&nbsp; <a href="#credits">CREDITS</a></sub></p>
+<p align="center"><sub>AN AGENT SKILL &nbsp;·&nbsp; <a href="#set-up">SET UP</a> &nbsp;·&nbsp; <a href="#nº-01">Nº 01</a> &nbsp;·&nbsp; <a href="#nº-00">Nº 00</a> &nbsp;·&nbsp; <a href="#credits">CREDITS</a></sub></p>
 
 <br>
 
@@ -24,6 +24,21 @@ browser. Nothing is summarised and nothing is cut.
     <td width="33%" valign="top"><b>III &nbsp;·&nbsp; READ</b><br><sub>Open <code>issues/&lt;month&gt;/index.html</code>. Spreads turn with ← →, and the issue prints.</sub></td>
   </tr>
 </table>
+
+<br>
+
+## Set up
+
+You need macOS, [Homebrew](https://brew.sh) and an agent that runs skills: Projections ships as a
+[Claude Code](https://claude.com/claude-code) skill in `.claude/skills/issue`.
+
+```bash
+git clone https://github.com/TAOGenna/projections
+cd projections && brew install uv poppler yt-dlp
+uv sync && uv run playwright install chromium
+```
+
+Then put links in `inbox.md`, open your agent in the folder, and type `/issue`.
 
 <br>
 
@@ -87,19 +102,6 @@ browser. Nothing is summarised and nothing is cut.
 </p>
 
 <br>
-
-## Set up
-
-You need macOS, [Homebrew](https://brew.sh) and an agent that runs skills: Projections ships as a
-[Claude Code](https://claude.com/claude-code) skill in `.claude/skills/issue`.
-
-```bash
-git clone https://github.com/TAOGenna/projections
-cd projections && brew install uv poppler yt-dlp
-uv sync && uv run playwright install chromium
-```
-
-Then put links in `inbox.md`, open your agent in the folder, and type `/issue`.
 
 ## How an issue is made
 
