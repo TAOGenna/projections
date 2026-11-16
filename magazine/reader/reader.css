@@ -10,6 +10,17 @@ html, body { margin: 0; height: 100%; background: #1d1d1f; overflow: hidden; }
 /* math is drawn by the browser from MathML in a LaTeX-quality math font: LaTeX's own when the reader has it */
 math { font-family: "Latin Modern Math", "STIX Two Math", math; }
 
+/* the contents' rows are links to their pages */
+[data-item="_contents"] a { color: inherit; text-decoration: none; }
+[data-item="_contents"] a:hover { opacity: .55; }
+/* a page number being typed (reader.js) */
+.goto {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 9; padding: 10px 20px;
+  border-radius: 8px; background: rgba(0, 0, 0, .78); color: #fff; font: 300 15px/1 "Open Sans", sans-serif;
+  letter-spacing: .04em; pointer-events: none;
+}
+.goto[hidden] { display: none; }
+
 /* a page turn (reader.js): it exists only while a page is turning, and never inside a spread */
 @media screen {
   /* the spread being uncovered lies under the turning sheet, cut to the half it shows */
@@ -35,5 +46,5 @@ math { font-family: "Latin Modern Math", "STIX Two Math", math; }
   .deck { position: static; width: auto; height: auto; transform: none !important; }
   /* 1600 CSS px is 16.67in; zoom maps it to the 16in page */
   .spread { display: block; box-shadow: none; break-after: page; zoom: .96; }
-  .turn { display: none; }
+  .turn, .goto { display: none; }
 }

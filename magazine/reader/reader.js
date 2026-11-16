@@ -1,12 +1,23 @@
 // The reader: shows one spread at a time, scaled to the window. The place is kept in the URL as #s{n}, and
 // remembered per issue, so reopening an issue resumes where you left off.
 // Stepping to the next or previous spread turns the page: the half sheet bends over the gutter like paper.
+// An address can also name a page, #p{n} (the contents links this way), or any element by its id. Typing a page
+// number and Enter goes there; Home goes back to the front.
 (() => {
   const deck = document.querySelector('.deck');
   const spreads = [...deck.querySelectorAll('.spread')];  // the same spreads the check measures
   const still = matchMedia('(prefers-reduced-motion: reduce)');
   let i = 0, turn = null;
-  const fromHash = () => (parseInt((location.hash.match(/^#s(\d+)$/) || [])[1], 10) || 1) - 1;
+  // a page is found by the folio printed on it; a page with none lies on spread n/2, two pages to a spread
+  const folios = {};
+  spreads.forEach((el, k) => el.querySelectorAll('.folio').forEach(f => folios[f.textContent.trim()] ??= k));
+  const ofPage = p => folios[p] ?? Math.floor(p / 2);
+  function fromHash() {
+    const h = decodeURIComponent(location.hash.slice(1)), m = h.match(/^([sp])(\d+)$/);
+    if (m) return m[1] === 's' ? +m[2] - 1 : ofPage(+m[2]);
+    const el = h && document.getElementById(h);
+    return el && el.closest('.spread') ? spreads.indexOf(el.closest('.spread')) : 0;
+  }
 
   const embedded = window.top !== window.self;  // inside another page's frame: no desk, no margin
   if (embedded) document.documentElement.classList.add('embedded');
@@ -128,8 +139,25 @@
     show(to);
   }
 
+  // typing a page number: the digits show at the foot of the window, Enter goes there, Escape lets it go
+  const ask = Object.assign(div('goto'), {hidden: true});
+  document.body.append(ask);
+  let typed = '', idle;
+  const type = s => {
+    typed = s.slice(0, 4);
+    ask.hidden = !typed;
+    ask.textContent = `Page ${typed}`;
+    clearTimeout(idle);
+    if (typed) idle = setTimeout(() => type(''), 5000);
+  };
+
   addEventListener('keydown', e => {
-    if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) step(1);
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (/^\d$/.test(e.key)) type(typed + e.key);
+    else if (typed && e.key === 'Backspace') type(typed.slice(0, -1));
+    else if (typed && e.key === 'Enter') { show(ofPage(+typed)); type(''); }
+    else if (typed && e.key === 'Escape') type('');
+    else if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) step(1);
     else if (['ArrowLeft', 'PageUp'].includes(e.key)) step(-1);
     else if (e.key === 'Home') show(0);
     else if (e.key === 'End') show(spreads.length - 1);

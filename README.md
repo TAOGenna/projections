@@ -21,7 +21,7 @@ browser. Nothing is summarised and nothing is cut.
   <tr>
     <td width="33%" valign="top"><b>I &nbsp;·&nbsp; SAVE</b><br><sub>Paste links into <code>inbox.md</code> as you find them, one per line.</sub></td>
     <td width="33%" valign="top"><b>II &nbsp;·&nbsp; RUN</b><br><sub>Type <code>/issue</code> to your agent when you want an issue. Every link is captured whole and given an opener.</sub></td>
-    <td width="33%" valign="top"><b>III &nbsp;·&nbsp; READ</b><br><sub>It opens in your browser, and <code>magazine open</code> brings it back where you left off. Spreads turn with ← →, and the issue prints.</sub></td>
+    <td width="33%" valign="top"><b>III &nbsp;·&nbsp; READ</b><br><sub>It opens in your browser, and <code>magazine open</code> brings it back where you left off. Spreads turn with ← →, the contents takes you to a chapter, a typed page number and ⏎ takes you to that page, and the issue prints.</sub></td>
   </tr>
 </table>
 
@@ -122,7 +122,7 @@ mechanical parts:
    across as many spreads as it needs, in its own colours and the house type.
 3. **Assemble, bake, check.** `assemble` binds the chapters into `index.html`, `bake` turns heavy drawings into
    images so the issue turns fast, and `check` fails on any overflow, hidden block, broken image or faked type.
-4. **Open.** `open` opens the issue in your browser; the reader remembers the spread you stopped at, per issue.
+4. **Open.** `open` opens the issue in your browser; the reader remembers the spread you stopped at, per issue. Click a row of the contents to go to its chapter, type a page number and press ⏎ to go to that page, and press Home (fn ← on a Mac) to go back to the front. `#s55` in the address is spread 55, `#p108` page 108.
 5. **Archive.** `archive` clears the inbox for next time.
 
 Your issues stay on your machine: `issues/` is not tracked.
