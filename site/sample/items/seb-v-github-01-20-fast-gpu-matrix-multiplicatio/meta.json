@@ -1,0 +1,25 @@
+{
+  "url": "https://seb-v.github.io/optimization/update/2025/01/20/Fast-GPU-Matrix-multiplication.html",
+  "note": "",
+  "slug": "seb-v-github-01-20-fast-gpu-matrix-multiplicatio",
+  "kind": "html",
+  "status": "ok",
+  "reason": "",
+  "title": "Optimizing Matrix Multiplication on RDNA3: 50 TFlops and 60% Faster Than rocBLAS",
+  "site": "Seb-V",
+  "author": "Seb-V",
+  "date": "2025-01-12",
+  "blocks": 376,
+  "palette": [
+    "#111111",
+    "#fdfdfd",
+    "#424242",
+    "#eeeeff"
+  ],
+  "fonts": [
+    "-apple-system, \"system-ui\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+    "monospace"
+  ],
+  "screenshot": "items/seb-v-github-01-20-fast-gpu-matrix-multiplicatio/screenshot.png",
+  "saved_url": "https://seb-v.github.io/optimization/update/2025/01/20/Fast-GPU-Matrix-multiplication.html"
+}

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "issue",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8612",
+        "--bind",
+        "127.0.0.1"
+      ],
+      "port": 8612
+    }
+  ]
+}

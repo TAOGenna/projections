@@ -1,0 +1,62 @@
+/* What every landing page shares: a fixed 1600 × 1000 portfolio page scaled to the window, the box of words,
+   and the issue opening over the page. Each page sets its own ground and its --ink, --body, --muted, --line. */
+:root {
+  --display: "Cormorant Garamond", Garamond, serif; --house: "Open Sans", system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+body { background: var(--ground); font: 300 14px/1.6 var(--house); color: var(--body); }
+.canvas { position: fixed; left: 50%; top: 50%; width: 1600px; height: 1000px; transform-origin: 50% 50%; overflow: hidden; }
+.grain { position: absolute; inset: 0; pointer-events: none; opacity: .14; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+/* the box of words, after the portfolio's opener, in order of how loud: the name and what it is; three steps; the
+   setup, set apart on its own inset */
+.box { position: absolute; left: 60px; top: 110px; width: 680px; border: 1px solid var(--line); padding: 64px 60px 42px; text-align: center; }
+.box h1 { margin: 0; font: 400 48px/1 var(--display); letter-spacing: .09em; text-transform: uppercase; color: var(--ink); }
+.box .sub { margin: 16px 0 0; font: italic 300 18px/1.4 var(--house); color: var(--body); }
+.box .tags { margin: 18px 0 0; font: 400 10.5px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.box .tags span + span::before { content: "·"; margin: 0 12px; }
+.box code { font: 12px var(--mono); font-style: normal; padding: 1px 5px; border-radius: 3px; background: var(--inset);
+  box-shadow: inset 0 0 0 1px var(--line); }
+.box code.cmd { color: var(--c-cmd); }
+.box code.file { color: var(--c-str); }
+.steps { list-style: none; margin: 36px 0 0; padding: 24px 0 0; border-top: 1px solid var(--line); display: grid;
+  grid-template-columns: repeat(3, 1fr); text-align: left; }
+.steps li { padding: 0 20px; border-left: 1px solid var(--line); }
+.steps li:first-child { padding-left: 0; border-left: 0; }
+.steps li:last-child { padding-right: 0; }
+.steps b { display: block; font: 400 36px/1 var(--display); color: var(--ink); }
+.steps strong { display: block; margin: 12px 0 7px; font: 500 14px/1 var(--display); letter-spacing: .18em; text-transform: uppercase; color: var(--ink); }
+.steps span { display: block; font: italic 300 13px/1.55 var(--house); color: var(--body); }
+.setup { margin: 30px 0 0; padding: 16px 20px 14px; text-align: left; background: var(--inset); border: 1px solid var(--line); }
+.setup-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; font: 400 10.5px/1 var(--mono);
+  letter-spacing: .16em; text-transform: uppercase; }
+.setup-head span { color: var(--ink); }
+.setup-head small { font-size: inherit; color: var(--muted); }
+.setup pre { margin: 0; font: 12.5px/1.8 var(--mono); color: var(--body); white-space: pre-wrap; }
+.setup pre i { font-style: normal; color: var(--muted); user-select: none; }  /* the prompt and the && between commands */
+.setup pre b { font-weight: 400; color: var(--c-cmd); }                   /* the command */
+.setup pre u { text-decoration: none; color: var(--c-str); }              /* the address, the folder */
+.copy { all: unset; margin-left: auto; cursor: pointer; color: var(--muted); border-bottom: 1px solid var(--line); padding-bottom: 3px; }
+.copy:hover { color: var(--ink); border-color: var(--ink); }
+.links { position: absolute; font: italic 300 12px/1.5 var(--house); color: var(--muted); }
+.links a { color: var(--body); text-decoration: none; border-bottom: 1px solid var(--line); }
+.links a:hover { color: var(--ink); border-color: var(--ink); }
+
+/* captions, the portfolio's: line one says what it is, line two, lighter, what it's made of */
+.cap { position: absolute; font: italic 300 13px/1.35 var(--house); color: var(--body); }
+.cap small { display: block; font-size: 12px; color: var(--muted); }
+[data-s] { cursor: pointer; }
+
+/* the issue, opened over the page */
+.lightbox { position: fixed; inset: 0; z-index: 9; display: grid; place-items: center; background: rgba(8, 8, 9, .92);
+  opacity: 0; pointer-events: none; transition: opacity .4s; }
+.lightbox.on { opacity: 1; pointer-events: auto; }
+.lb-reader { position: relative; width: min(94vw, calc(88vh * 1.6)); aspect-ratio: 16 / 10; box-shadow: 0 40px 90px -20px #000; }
+.lb-reader iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.lb-close { all: unset; position: absolute; top: 20px; right: 26px; cursor: pointer; font: 400 11px/1 var(--mono); letter-spacing: .14em;
+  text-transform: uppercase; color: #ddd6c8; }
+.lb-hint { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; font: 400 11px/1 var(--mono); letter-spacing: .14em;
+  text-transform: uppercase; color: rgba(221, 214, 200, .55); }

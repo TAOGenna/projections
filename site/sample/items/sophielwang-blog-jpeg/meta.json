@@ -1,0 +1,22 @@
+{
+  "url": "https://www.sophielwang.com/blog/jpeg",
+  "note": "",
+  "slug": "sophielwang-blog-jpeg",
+  "kind": "html",
+  "status": "ok",
+  "reason": "",
+  "title": "JPEG compression",
+  "site": "Sophie Wang",
+  "author": "",
+  "date": "2026-03-13",
+  "blocks": 32,
+  "palette": [
+    "#000000"
+  ],
+  "fonts": [
+    "warnock-pro, rig-sans, ellery, ff-seria, sans-serif",
+    "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+  ],
+  "screenshot": "items/sophielwang-blog-jpeg/screenshot.png",
+  "saved_url": "https://www.sophielwang.com/blog/jpeg"
+}

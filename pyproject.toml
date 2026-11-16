@@ -1,0 +1,17 @@
+[project]
+name = "magazine"
+version = "0.1.0"
+description = "Projections: a magazine your agents make from what you save and bookmark"
+requires-python = ">=3.11"
+dependencies = [
+    "trafilatura>=2.0",
+    "playwright",
+    "pillow>=13.0.0",
+]
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

@@ -1,0 +1,39 @@
+/* The reader: one 1600 × 1000 spread at a time on a dark desk. Each issue's look lives in its own style.css. */
+html, body { margin: 0; height: 100%; background: #1d1d1f; overflow: hidden; }
+.embedded, .embedded body { background: transparent; }
+.deck { position: absolute; left: 50%; top: 50%; width: 1600px; height: 1000px; transform-origin: 0 0; }
+.spread {
+  position: relative; display: none; width: 1600px; height: 1000px; overflow: hidden;
+  box-sizing: border-box; background: #fff; box-shadow: 0 30px 80px rgba(0, 0, 0, .5);
+}
+.spread.on { display: block; }
+/* math is drawn by the browser from MathML in a LaTeX-quality math font: LaTeX's own when the reader has it */
+math { font-family: "Latin Modern Math", "STIX Two Math", math; }
+
+/* a page turn (reader.js): it exists only while a page is turning, and never inside a spread */
+@media screen {
+  /* the spread being uncovered lies under the turning sheet, cut to the half it shows */
+  .spread.under-r, .spread.under-l { display: block; position: absolute; left: 0; top: 0; z-index: 1; }
+  .spread.under-r { clip-path: inset(0 0 0 800px); }
+  .spread.under-l { clip-path: inset(0 800px 0 0); }
+  .deck:has(> .turn) > .spread { isolation: isolate; }  /* a spread's own z-indexes stay inside it */
+  .turn { position: absolute; left: 0; top: 0; width: 1600px; height: 1000px; z-index: 2; pointer-events: none; }
+  .turn > div { position: absolute; top: 0; height: 1000px; }
+  .turn > .spine { left: 770px; width: 60px; background: linear-gradient(to right, transparent, rgba(0, 0, 0, .16), transparent); }
+  .turn > .sheet { left: 0; width: 1600px; perspective: 8000px; perspective-origin: 800px 500px; transform-style: preserve-3d; }
+  .turn .strip { position: absolute; top: 0; height: 1000px; transform-style: preserve-3d; }
+  .turn .face { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; }
+  .turn .face.back { transform: rotateY(180deg); }
+  .turn .face > .spread { display: block; position: absolute; top: 0; margin: 0; box-shadow: none; }
+  /* its own layer, so shading the strip each frame doesn't repaint the page under it */
+  .turn .shade { position: absolute; inset: 0; will-change: transform; backface-visibility: hidden; }
+}
+
+@media print {
+  @page { size: 16in 10in; margin: 0; }
+  html, body { height: auto; overflow: visible; background: none; }
+  .deck { position: static; width: auto; height: auto; transform: none !important; }
+  /* 1600 CSS px is 16.67in; zoom maps it to the 16in page */
+  .spread { display: block; box-shadow: none; break-after: page; zoom: .96; }
+  .turn { display: none; }
+}

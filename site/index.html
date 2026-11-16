@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projections</title>
+<meta name="description" content="A magazine your agents make from what you save and bookmark, on your own machine.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Open+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="landing.css?v=94bffbba">
+<style>
+/* The landing: one portfolio page. The words in glass, the issue as a printed object, the cover's drawing imprinted
+   across a teal ground, after the portfolio's bridge sheets. */
+:root { --ground: #477f82; --ink: #f6f3ea; --body: #e8f1f0; --muted: rgba(236, 246, 245, .7); --line: rgba(246, 243, 234, .55);
+  --lines: rgba(244, 250, 248, .32); --glow: rgba(150, 220, 222, .3); --glow2: rgba(255, 255, 255, .06); --shadow: rgba(8, 36, 40, .6);
+  --glass-edge: rgba(255, 255, 255, .3); --glass-hi: rgba(255, 255, 255, .26); --inset: rgba(10, 45, 50, .22);
+  --c-cmd: #ffe0a3; --c-str: #bfeaff; }
+.light { position: fixed; inset: 0;  /* the ground fills the whole window; the lights sit where they fall on the page (--s: its scale) */
+  background: radial-gradient(calc(620px * var(--s, 1)) calc(520px * var(--s, 1)) at calc(50% + 440px * var(--s, 1)) calc(50% - 170px * var(--s, 1)), var(--glow), transparent 72%),
+              radial-gradient(calc(900px * var(--s, 1)) calc(300px * var(--s, 1)) at calc(50% + 350px * var(--s, 1)) calc(50% + 400px * var(--s, 1)), var(--glow2), transparent 70%); }
+body > .grain { position: fixed; }
+.canvas { overflow: visible; }  /* nothing is clipped at the page's edge: the shadow and an open issue may spill */
+.stage { position: absolute; left: 1105px; top: 205px; transform: scale(.5); transform-origin: 0 0; cursor: pointer;
+  z-index: 2; }  /* the issue floats in front of everything: the glass never has it behind, so never keeps a trace of it */
+.mag-scene { position: absolute; left: 0; top: 0; perspective: 2600px; perspective-origin: 0 500px; }
+.mag { position: absolute; left: 0; top: 0; transform-style: preserve-3d; transform-origin: 0 500px;
+  transform: rotateX(calc(16deg - var(--py, 0) * 7deg)) rotateY(calc(-26deg + var(--px, 0) * 12deg)) rotateZ(-3deg)
+    translateX(calc((var(--open, 0) - 1) * 400px)); }  /* closed, the cover sits where the open spread will be centred */
+.strip, .block { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.strip { height: 1000px; background-repeat: no-repeat; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.strip::after { content: ""; position: absolute; inset: 0;  /* the light on this strip: set per frame, the page image stays */
+  background: linear-gradient(to bottom, rgba(255, 250, 240, .05), rgba(20, 14, 8, .1)), linear-gradient(to right, var(--t0), var(--t1)); }
+.block { background: repeating-linear-gradient(to bottom, #f1ece2 0 1.2px, #c8c0b1 1.2px 2.2px); }
+.block.fore { background: repeating-linear-gradient(to right, #f1ece2 0 1.2px, #c8c0b1 1.2px 2.2px); }
+.issue-cap button { all: unset; cursor: pointer; color: var(--body); border-bottom: 1px solid var(--line); }
+.issue-cap button:hover { color: var(--ink); border-color: var(--ink); }
+/* the cover's drawing, imprinted across the page: its lines only, a mask in --lines, so the ground can be any colour */
+.imprint { position: fixed; inset: 0; background: var(--lines);
+  -webkit-mask: url(landing/lines.webp) center / cover no-repeat; mask: url(landing/lines.webp) center / cover no-repeat; }
+.box { /* frosted glass, as macOS draws a panel: a tint of the ground, the drawing blurred behind it, a light edge */
+  border-radius: 18px; border-color: var(--glass-edge);
+  background: linear-gradient(155deg, color-mix(in srgb, var(--ground) 16%, transparent), color-mix(in srgb, var(--ground) 6%, transparent));
+  -webkit-backdrop-filter: blur(2px) saturate(1.3); backdrop-filter: blur(2px) saturate(1.3);
+  box-shadow: inset 0 1px 0 var(--glass-hi), inset 0 0 0 1px rgba(255, 255, 255, .03), 0 40px 80px -40px rgba(0, 0, 0, .55); }
+.box .setup { border-radius: 11px; border-color: var(--glass-edge); background: color-mix(in srgb, var(--ground) 18%, rgba(0, 0, 0, .07));
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); box-shadow: inset 0 1px 0 var(--glass-hi); }
+.box code { border-radius: 5px; }
+.cast { position: absolute; left: 760px; top: 800px; width: 820px; height: 110px; border-radius: 50%; background: var(--shadow);
+  filter: blur(42px); transform: rotate(-4deg); }
+</style>
+</head>
+<body>
+<div class="light"></div>
+<div class="imprint" aria-hidden="true"></div>
+<div class="grain"></div>
+<div class="canvas">
+  <div class="cast"></div>
+  <div class="stage" id="stage" role="button" tabindex="0" aria-label="Nº 00, a sample issue: open it and turn its pages"></div>
+
+  <div class="box">
+    <h1>Projections</h1>
+    <p class="sub">A magazine your agents make from what you save and bookmark</p>
+    <p class="tags"><span>An agent skill</span></p>
+    <ol class="steps">
+      <li><b>I</b><strong>Save</strong><span>Paste links into <code class="file">inbox.md</code> as you find them.</span></li>
+      <li><b>II</b><strong>Run</strong><span>Type <code class="cmd">/issue</code> to your agent when you want an issue.</span></li>
+      <li><b>III</b><strong>Read</strong><span>Every piece in full, in its own world, turning like paper.</span></li>
+    </ol>
+    <div class="setup">
+      <div class="setup-head"><span>Set up</span><small>macOS · Homebrew · your agent</small><button class="copy">Copy</button></div>
+<pre><i>$ </i><b>git</b> clone <u>https://github.com/TAOGenna/projections</u>
+<i>$ </i><b>cd</b> <u>projections</u> <i>&amp;&amp;</i> <b>brew</b> install uv poppler yt-dlp
+<i>$ </i><b>uv</b> sync <i>&amp;&amp;</i> <b>uv</b> run playwright install chromium</pre>
+    </div>
+  </div>
+
+  <div class="cap issue-cap" id="cap" style="left:1140px;top:905px;text-align:right;width:400px"></div>
+  <p class="links" style="left:1240px;top:956px;text-align:right;width:300px"><a href="https://github.com/TAOGenna/projections">The repository</a> ·
+    <a href="https://taogenna.github.io">taogenna.github.io</a></p>
+</div>
+<script src="landing.js?v=94bffbba"></script>
+<script type="module">
+import { book } from './landing/magazine.js?v=94bffbba';
+const PV = '107d3f1a';  // the pages' version: a new render reaches every browser
+const COUNT = 29, stage = document.getElementById('stage'), cap = document.getElementById('cap');
+const issue = book(stage, {
+  count: COUNT, pages: (k, side) => `landing/pages/s${String(k).padStart(2, '0')}-${side}.jpg?v=${PV}`,
+  onchange: k => {  // what the caption says depends on where the issue is open
+    cap.innerHTML = k === 1
+      ? 'Nº 00, a sample issue<small>click it to open: twenty-nine spreads, read in full</small>'
+      : `Pages ${2 * k - 2}–${2 * k - 1} of ${2 * COUNT}<small>click a page or use ← → · <button id="full">full screen</button> · <button id="shut">close</button></small>`;
+    document.getElementById('full')?.addEventListener('click', () => openFull(k));
+    document.getElementById('shut')?.addEventListener('click', () => issue.close());
+  },
+});
+function openFull(k) {  // the reader over the page, at the same spread
+  const el = Object.assign(document.createElement('span'), { hidden: true });
+  el.dataset.s = k; document.body.append(el); el.click(); el.remove();
+}
+stage.addEventListener('click', e => { if (issue.spread === 1 || e.clientX > issue.spine()) issue.next(); else issue.prev(); });
+addEventListener('keydown', e => {
+  if (document.querySelector('.lightbox.on')) return;
+  if (e.key === 'ArrowRight') issue.next(); else if (e.key === 'ArrowLeft') issue.prev(); else if (e.key === 'Enter' && issue.spread === 1) issue.next();
+});
+</script>
+</body>
+</html>

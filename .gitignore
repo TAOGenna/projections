@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+data/
+front.jpg
+issues/*/proofs/
+site/sample/proofs/
+site/sample/items/*/screenshot.png
+# your issues stay on your machine
+issues/
