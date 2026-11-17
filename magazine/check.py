@@ -19,7 +19,9 @@ html, body { margin: 0 !important; overflow: visible !important; }
 #   overflow:hidden box);
 # - any text that sticks out of the clipping or multi-column box it sits in (text spilled from columns is lost),
 #   or that its own clipping box cuts off (overflow:auto, line clamps);
-# - source blocks that render nothing (display:none, visibility:hidden).
+# - source blocks that render nothing (display:none, visibility:hidden);
+# - content the PDF would cut: a line of text or a figure across the gutter at 800px, or text within the 60px either
+#   side of it (each page printed alone keeps a margin there). Decoration (aria-hidden) and the cover may cross.
 MEASURE_JS = """async (i) => {
   await document.fonts.ready;
   const s = document.querySelectorAll('.spread')[i], sr = s.getBoundingClientRect();
@@ -55,7 +57,32 @@ MEASURE_JS = """async (i) => {
       }
     }
   }
-  return {over: Math.round(over), hidden, faked: [...faked]};
+  const G = sr.left + 800, M = 60, cross = [], near = new Set();
+  const seen = r => { const c = {l: r.left, r: r.right};  // the part of a box its clipping ancestors leave visible
+    return el => { for (let a = el.parentElement; a && a !== s; a = a.parentElement) if (clipping(getComputedStyle(a))) {
+      const b = a.getBoundingClientRect(); c.l = Math.max(c.l, b.left); c.r = Math.min(c.r, b.right); } return c; }; };
+  if (s.dataset.item !== '_cover') {
+    const walk = document.createTreeWalker(s, NodeFilter.SHOW_TEXT);
+    for (let n; n = walk.nextNode();) {
+      const el = n.parentElement;
+      if (!n.textContent.trim() || el.closest('[aria-hidden="true"]')) continue;
+      const range = document.createRange();
+      range.selectNodeContents(n);
+      for (const r of range.getClientRects()) {
+        const c = seen(r)(el);
+        if (c.r - c.l < 1) continue;
+        if (c.l < G - 2 && c.r > G + 2) cross.push((el.closest('[data-b]') || el).dataset.b || el.tagName.toLowerCase());
+        else if (c.l < G + M - 6 && c.r > G - M + 6) near.add(  // a glyph's few px of overhang is no layout
+          (el.closest('[data-b]') || el).dataset.b || el.tagName.toLowerCase());
+      }
+    }
+    for (const el of s.querySelectorAll('img, svg, video, canvas, iframe, table, pre, figure')) {
+      if (el.closest('[aria-hidden="true"]') || el.parentElement.closest('svg, figure, table, pre')) continue;
+      // each fragment on its own: a table that runs on from one page's column to the next is two pieces
+      if ([...el.getClientRects()].map(r => seen(r)(el)).some(c => c.l < G - 2 && c.r > G + 2)) cross.push(el.tagName.toLowerCase() + (el.getAttribute('src') ? ' ' + el.getAttribute('src') : ''));
+    }
+  }
+  return {over: Math.round(over), hidden, faked: [...faked], cross: [...new Set(cross)], near: [...near]};
 }"""
 
 IMAGES_JS = """async () => {
@@ -77,6 +104,12 @@ def _ranges(ns: list[int]) -> str:
             parts.append(f"{start}–{n}" if n > start else f"{n}")
             start = None
     return ", ".join(parts)
+
+
+def _names(things: list[str]) -> str:
+    blocks = sorted(int(t) for t in things if t.isdigit())
+    return ", ".join(([f"block{'s' if len(blocks) > 1 else ''} {_ranges(blocks)}"] if blocks else [])
+                     + [t for t in things if not t.isdigit()])
 
 
 def _words(el) -> str:
@@ -138,6 +171,10 @@ def render_problems(index: Path, proofs_dir: Path | None = None) -> list[str]:
             problems += [f"{name}: block {b} is hidden" for b in m["hidden"]]
             problems += [f"{name}: {f} is faked by the browser (that weight or style isn't loaded)" for f in m["faked"]]
             problems += [f"{name}: broken image {src}" for src in broken[i]]
+            if m["cross"]:
+                problems.append(f"{name}: crosses the gutter, cut in two in the PDF: {_names(m['cross'])}")
+            if m["near"]:
+                problems.append(f"{name}: text within 60px of the gutter: {_names(m['near'])}")
             if proofs_dir:
                 el.screenshot(path=str(proofs_dir / f"{i + 1:02}.png"))
         browser.close()

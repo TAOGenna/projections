@@ -86,3 +86,32 @@ def test_render_ignores_decorative_layers(tmp_path):
         '<div style="position:absolute;left:-300px;top:20px;font-size:180px;white-space:nowrap">UOPS · REWRITES · LOADS · STORES</div>'
         '</div></section>')
     assert render_problems(page) == []
+
+
+def test_render_flags_content_across_or_against_the_gutter_but_not_decoration(tmp_path):
+    # the PDF cuts each spread at 800px: text or a figure across it is cut; decoration may cross
+    (tmp_path / "reader.css").write_text(".spread{width:1600px;height:1000px;position:relative;overflow:hidden}"
+                                         " .spread *{position:absolute;top:100px;margin:0}")
+    page = tmp_path / "index.html"
+    page.write_text('<link rel="stylesheet" href="reader.css">'
+        '<section class="spread" data-item="a"><p data-b="3" style="left:700px;width:300px">across the gutter</p></section>'
+        '<section class="spread" data-item="b"><svg style="left:600px" width="400" height="100"></svg></section>'
+        '<section class="spread" data-item="c"><p style="left:760px">x</p></section>'
+        '<section class="spread" data-item="d"><svg aria-hidden="true" style="left:0" width="1600" height="900"></svg>'
+        '<p style="left:60px;width:680px">left page</p><p style="left:860px;width:680px">right page</p></section>')
+    probs = render_problems(page)
+    assert "spread 1 (a): crosses the gutter, cut in two in the PDF: block 3" in probs
+    assert any(p.startswith("spread 2 (b): crosses the gutter") and "svg" in p for p in probs)
+    assert any(p.startswith("spread 3 (c): text within 60px of the gutter") for p in probs)
+    assert not any("spread 4" in p for p in probs)
+
+
+def test_render_lets_a_table_run_on_from_one_page_to_the_next(tmp_path):
+    # a column a page, the gutter between them: a long table breaks at the foot of the left page, crossing nothing
+    (tmp_path / "reader.css").write_text(".spread{width:1600px;height:1000px;position:relative;overflow:hidden}")
+    page = tmp_path / "index.html"
+    rows = "".join(f"<tr><td>{n}</td></tr>" for n in range(80))
+    page.write_text('<link rel="stylesheet" href="reader.css"><section class="spread" data-item="a">'
+        '<div style="position:absolute;left:60px;top:80px;width:1480px;height:840px;columns:2;column-gap:120px;column-fill:auto">'
+        f'<table style="width:100%">{rows}</table></div></section>')
+    assert not any("gutter" in p for p in render_problems(page))

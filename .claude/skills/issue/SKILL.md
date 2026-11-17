@@ -30,11 +30,11 @@ Run everything from the repo root. `<month>` is `YYYY-MM` (default: this month).
 
 1. **Capture.** Run `uv run python -m magazine start`. A page behind a human check (Codeforces) is read through the user's Safari: a tab opens for a few seconds; the first time, macOS asks to let the terminal control Safari, and a check, if Safari shows one, is the user's to click. Report the table it prints (slug, kind, status, blocks, reason). If more than a third of the items are unreadable, ask the user before continuing.
    - **Resolving a front page.** An entry may point at a site's front page or an index while its note names one specific piece, for example `[crawling a billion pages](https://andrewkchan.dev/)`. Open the page, find the link whose text matches the note, and run `uv run python -m magazine recapture <slug> <that-url>`. It captures the piece into the same folder and keeps the saved link as `saved_url`. On the item's opener, say: "You saved the front page; this is the post it pointed to."
-2. **Read the house style.** Read `policies.md`. If a previous issue exists in `issues/`, read its `style.css` and two of its chapters, and keep its frame.
+2. **Read the house style.** Read `policies.md`. If a previous issue exists in `issues/`, read its `style.css` and two of its chapters, and keep its frame. Where an older frame breaks `policies.md`, the policy wins: Nº 01's `.flow.wide` (one column box across both pages) and its 16 px gutter margin don't survive the single-page PDF.
 3. **Study each item.** Read its `meta.json`, look at `screenshot.png`, and skim `source.html`: the block count, the headings, the figures, the kind of structure. Learn its world: colours, imagery, texture, structure. (Type is the house's: see `policies.md`.)
 4. **Plan.** Write `issues/<month>/plan.md`:
    - the order of the items, and what sits next to what;
-   - for each item, its spreads and the block range each spread holds, so that every block from 1 to n is placed exactly once;
+   - for each item, its spreads and the block range each page holds (left, then right: nothing crosses the gutter), so that every block from 1 to n is placed exactly once;
    - the one big image of each chapter.
 5. **Write the issue.**
    - Write `style.css`: the house frame and the house type for all text (see `policies.md`), the numeral, the hairline box, titles, subtitles, source block, `.editor`, captions, keys, running heads, page numbers).

@@ -4,11 +4,23 @@ These are the editor's guidelines for making each issue: a delight to read, mode
 
 ## The magazine
 
-Projections is a monthly magazine of the things you saved, each one projected into the issue: captured faithfully, keeping its own identity, and set inside one recurring house frame. You read it on a computer, one landscape spread at a time, like a printed magazine. It can also be printed.
+Projections is a monthly magazine of the things you saved, each one projected into the issue: captured faithfully, keeping its own identity, and set inside one recurring house frame. You read it on a computer, one landscape spread at a time, like a printed magazine. It also comes as a PDF of single pages, for reading where a spread is too small to zoom into.
 
-## Spreads are landscape
+## Spreads are landscape, and every page stands alone
 
-Every spread is 1600 × 1000 px: two 800 px pages side by side, on a laptop-shaped screen. Design each spread as a whole; the gutter at 800 px is a seam, not a wall.
+Every spread is 1600 × 1000 px: two 800 px pages side by side, on a laptop-shaped screen. Design each spread as a
+whole, but the PDF cuts it at the gutter into its two pages, so each page must read on its own:
+- **Content never crosses the gutter.** No line of text, column, figure, table, code block or caption runs across
+  800 px. Text sits in columns that belong to one page (`.flow.l`, `.flow.r`), never in one column box across both.
+- **Each page is centred on itself.** Its margins are the same on both sides: 60 px outside, and 60 px on the gutter
+  side too. Text keeps out of the 60 px either side of the gutter.
+- **A figure too big for a column takes a whole page.** Set it as large as the page allows, or let it bleed to the
+  page's edges inside a box clipped at the page. If two columns would cramp a figure, a table or a stretch of text,
+  give it the full page width instead. A figure is never split across two pages.
+- **Only the ground may cross:** a ground, a texture, faint construction geometry or giant faint type can run across
+  the gutter, as the seam the two pages share. Anything that reads as a picture stays on one page, even when it is
+  drawn for the issue and `aria-hidden`: a diagram, a chart, a sequence of objects. Keep it 60 px clear of the gutter.
+  The cover's picture is the one exception: the PDF keeps its right half as the front.
 
 ## The front
 
@@ -71,7 +83,7 @@ everything else is the work itself, large and at scale.
   then what it's made of or where it's from (`The flamingos, five times` / `JPEG at falling quality, drawn for this
   issue`). Never a sentence from the reading, a caption that teaches, a numbered key, a formula, a number, an axis
   or an annotation. If a picture needs words to make sense, it belongs inside the reading, not on the opener.
-- **Each chapter also gets its "one big image":** a spread given to its strongest figure.
+- **Each chapter also gets its "one big image":** a whole page given to its strongest figure.
 - **Except contest problems.** A competitive-programming problem (Codeforces, AtCoder and the like) gets a plain
   opener: the frame on a quiet ground, and nothing else. No drawing, figure or giant type, and no note that
   hints at a solution: no editor's note at all, since the source block already says where it's from. With nothing to
@@ -135,7 +147,7 @@ A chapter goes: opener → the item in full → one big image. The item's own te
 
 ## Room follows the item
 
-A short post might take part of a spread. A paper takes as many spreads as its full text and figures need. Columns are the usual tool: two to four per page for long text, sized to the item's own type.
+A short post might take part of a spread. A paper takes as many spreads as its full text and figures need. Columns are the usual tool: one or two per page for long text, sized to the item's own type.
 
 ## Unreadable items
 
@@ -143,7 +155,7 @@ When a link couldn't be read (a dead link, a bot wall, a video with no transcrip
 
 ## Bleeds
 
-Anything meant to run off the edge of a spread (a big image, a drawing) goes inside a box with `overflow: hidden`. The check treats anything else that sticks out as lost content.
+Anything meant to run off the edge of a spread (a big image, a drawing) goes inside a box with `overflow: hidden`. The check treats anything else that sticks out as lost content. A picture that bleeds stops at the gutter: its box is clipped at its own page.
 
 ## Principles, not imitation
 
