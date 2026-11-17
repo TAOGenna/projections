@@ -49,7 +49,8 @@ Run everything from the repo root. `<month>` is `YYYY-MM` (default: this month).
    - Run `uv run python -m magazine assemble`, then `uv run python -m magazine bake` (heavy decoration becomes images, so turning pages stays smooth), then `uv run python -m magazine check --shots`.
    - Fix every problem by moving block ranges between spreads or adding spreads. Never cut text.
    - Look at `proofs/*.png`, one per spread, and fix whatever reads badly against `policies.md`: cramped columns, orphaned headings, a frame that drifted, an item that lost its world.
-7. **Hand it over.** Run `uv run python -m magazine open` to open the issue in the user's browser, and tell them it is at `issues/<month>/index.html` (← → turn spreads) and that `uv run python -m magazine open` brings it back any time, at the spread they stopped on (`open YYYY-MM` for an earlier issue). Only after they confirm, run `uv run python -m magazine archive` to move the used lines out of `inbox.md`.
+   - Once it prints `ok`, run `uv run python -m magazine pdf`. It prints the issue as `issues/<month>/projections-NN.pdf`, one 8 × 10in page per page: every spread cut at the gutter, the cover's right half as the front. It is the same layout the browser prints, so ⌘P and an issue published as an artifact export the same single pages.
+7. **Hand it over.** Run `uv run python -m magazine open` to open the issue in the user's browser, and tell them it is at `issues/<month>/index.html` (← → turn spreads, ⌘+ ⌘− zoom in and out), that the single-page PDF is at `issues/<month>/projections-NN.pdf` and that `uv run python -m magazine open` brings it back any time, at the spread they stopped on (`open YYYY-MM` for an earlier issue). Only after they confirm, run `uv run python -m magazine archive` to move the used lines out of `inbox.md`.
 
 ## Never
 

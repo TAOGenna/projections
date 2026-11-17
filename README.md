@@ -21,7 +21,7 @@ browser. Nothing is summarised and nothing is cut.
   <tr>
     <td width="33%" valign="top"><b>I &nbsp;·&nbsp; SAVE</b><br><sub>Paste links into <code>inbox.md</code> as you find them, one per line.</sub></td>
     <td width="33%" valign="top"><b>II &nbsp;·&nbsp; RUN</b><br><sub>Type <code>/issue</code> to your agent when you want an issue. Every link is captured whole and given an opener.</sub></td>
-    <td width="33%" valign="top"><b>III &nbsp;·&nbsp; READ</b><br><sub>It opens in your browser, and <code>magazine open</code> brings it back where you left off. Spreads turn with ← →, the contents takes you to a chapter, a typed page number and ⏎ takes you to that page, and the issue prints.</sub></td>
+    <td width="33%" valign="top"><b>III &nbsp;·&nbsp; READ</b><br><sub>It opens in your browser, and <code>magazine open</code> brings it back where you left off. Spreads turn with ← →, ⌘+ ⌘− zoom, the contents takes you to a chapter, a typed page number and ⏎ takes you to that page. Every issue also comes as a PDF of single pages.</sub></td>
   </tr>
 </table>
 

@@ -1,4 +1,4 @@
-"""python -m magazine start | recapture | assemble | bake | check | open | archive"""
+"""python -m magazine start | recapture | assemble | bake | check | pdf | open | archive"""
 import argparse
 import json
 import sys
@@ -65,6 +65,13 @@ def cmd_check(args) -> None:
         sys.exit(1)
 
 
+def cmd_pdf(args) -> None:
+    from magazine.pdf import print_pdf
+    d = issue_dir(args.month)
+    out = print_pdf(d, d / f"projections-{json.loads((d / 'issue.json').read_text())['number']:02d}.pdf")
+    print(f"wrote {out.relative_to(ROOT)}")
+
+
 def cmd_open(args) -> None:
     """Opens an issue in the browser, the latest unless a month is given; the reader resumes where you left off."""
     import webbrowser
@@ -85,13 +92,13 @@ def main(argv=None) -> None:
     s.add_argument("slug")
     s.add_argument("url")
     s.add_argument("--month", default=None, help="YYYY-MM (default: the latest issue)")
-    for name in ("assemble", "bake", "check", "open", "archive"):
+    for name in ("assemble", "bake", "check", "pdf", "open", "archive"):
         s = sub.add_parser(name)
         s.add_argument("month", nargs="?", help="YYYY-MM (default: the latest issue)")
         if name == "check":
             s.add_argument("--shots", action="store_true", help="also save proofs/NN.png per spread")
     args = p.parse_args(argv)
-    commands = {"start": cmd_start, "recapture": cmd_recapture, "assemble": cmd_assemble, "bake": cmd_bake, "check": cmd_check,
+    commands = {"start": cmd_start, "recapture": cmd_recapture, "assemble": cmd_assemble, "bake": cmd_bake, "check": cmd_check, "pdf": cmd_pdf,
                 "open": cmd_open, "archive": cmd_archive}
     if args.cmd not in commands:
         sys.exit(f"`{args.cmd}` is not built yet")

@@ -44,10 +44,16 @@ math { font-family: "Latin Modern Math", "STIX Two Math", math; }
 }
 
 @media print {
-  @page { size: 16in 10in; margin: 0; }
+  /* reader.js cuts each spread at the gutter into its two pages before printing: one 8 × 10in page each */
+  @page { size: 8in 10in; margin: 0; }
   html, body { height: auto; overflow: visible; background: none; }
-  .deck { position: static; width: auto; height: auto; transform: none !important; }
-  /* 1600 CSS px is 16.67in; zoom maps it to the 16in page */
-  .spread { display: block; box-shadow: none; break-after: page; zoom: .96; }
-  .turn, .goto { display: none; }
+  .paged .deck, .turn, .goto { display: none; }
+  /* 800 CSS px is 8.33in; zoom maps it to the 8in page */
+  /* contain: without it, Chrome counts what a page clips (a right-hand running head on a left page) and shrinks
+     every page to fit it */
+  .pages > div { width: 800px; height: 1000px; overflow: hidden; contain: strict; zoom: .96; break-after: page; }
+  .pages .spread { display: block; box-shadow: none; }
+  .pages > .r > .spread { margin-left: -800px; }
+  .pages > :last-child { break-after: auto; }
 }
+@media screen { .pages { display: none; } }

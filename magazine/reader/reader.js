@@ -19,17 +19,43 @@
     return el && el.closest('.spread') ? spreads.indexOf(el.closest('.spread')) : 0;
   }
 
-  const embedded = window.top !== window.self;  // inside another page's frame: no desk, no margin
+  // inside a page of the same site (the landing): no desk, no margin. A frame from elsewhere, like a viewer showing
+  // the issue, can't be looked into, and the issue is read there as on its own.
+  const embedded = (() => { try { return top !== self && top.location.origin === location.origin; } catch { return false; } })();
   if (embedded) document.documentElement.classList.add('embedded');
   const KEY = 'projections:' + location.pathname;  // one place kept per issue; an embedded issue keeps none
   const remembered = () => { try { return parseInt(localStorage.getItem(KEY), 10) || 0; } catch { return 0; } };
   const remember = n => { if (!embedded) try { localStorage.setItem(KEY, n); } catch {} };
 
+  // ⌘+ and ⌘− zoom into the spread, ⌘0 fits it again; zoomed, the spread follows the mouse to show what it points at
+  let zoom = 1, mx = .5, my = .5;
   function fit() {
     const m = embedded ? 0 : 48;
-    const s = Math.min((innerWidth - m) / 1600, (innerHeight - m) / 1000);
-    deck.style.transform = `scale(${s}) translate(-800px, -500px)`;
+    const s = Math.min((innerWidth - m) / 1600, (innerHeight - m) / 1000) * zoom;
+    const x = (.5 - mx) * Math.max(0, 1600 * s - innerWidth), y = (.5 - my) * Math.max(0, 1000 * s - innerHeight);
+    deck.style.transform = `translate(${x}px, ${y}px) scale(${s}) translate(-800px, -500px)`;
   }
+  addEventListener('mousemove', e => { mx = e.clientX / innerWidth; my = e.clientY / innerHeight; if (zoom > 1) fit(); });
+
+  // Printing (or `magazine pdf`) lays the issue out as single pages: each spread is cut at the gutter into its left
+  // and right page, in reading order. The cover keeps only its right half, the front a magazine shows when closed.
+  addEventListener('beforeprint', () => {
+    finish();
+    document.querySelector('.pages')?.remove();
+    const pages = div('pages');
+    spreads.forEach(s => (s.dataset.item === '_cover' ? ['r'] : ['l', 'r']).forEach(side => {
+      const half = div(side), page = s.cloneNode(true);
+      page.querySelectorAll('img').forEach(img => img.loading = 'eager');
+      half.append(page);
+      pages.append(half);
+    }));
+    document.body.append(pages);
+    document.documentElement.classList.add('paged');
+  });
+  addEventListener('afterprint', () => {
+    document.querySelector('.pages')?.remove();
+    document.documentElement.classList.remove('paged');
+  });
   function show(n) {
     finish();
     i = Math.max(0, Math.min(spreads.length - 1, n));
@@ -152,6 +178,11 @@
   };
 
   addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && ['=', '+', '-', '0'].includes(e.key)) {
+      zoom = e.key === '0' ? 1 : Math.min(4, Math.max(1, zoom * (e.key === '-' ? 1 / 1.25 : 1.25)));
+      fit();
+      return e.preventDefault();
+    }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (/^\d$/.test(e.key)) type(typed + e.key);
     else if (typed && e.key === 'Backspace') type(typed.slice(0, -1));
@@ -171,6 +202,7 @@
       return;
     }
     if (e.target.closest('a, button, input, summary, video')) return;
+    if (getSelection().toString()) return;  // the end of a drag that selected text: the page stays
     step(e.clientX > innerWidth / 2 ? 1 : -1);
   });
   addEventListener('hashchange', () => show(fromHash()));
