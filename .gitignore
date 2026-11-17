@@ -7,3 +7,4 @@ site/sample/proofs/
 site/sample/items/*/screenshot.png
 # your issues stay on your machine
 issues/
+.DS_Store
