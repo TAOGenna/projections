@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import sys
 import urllib.request
+from datetime import datetime
 from html import escape
 from pathlib import Path
 from typing import Literal
@@ -44,8 +45,10 @@ SCROLL_JS = """async () => {
 }"""
 
 
-def kind_of(url: str) -> Literal["video", "github", "arxiv", "pdf", "html"]:
+def kind_of(url: str) -> Literal["video", "github", "arxiv", "pdf", "markdown", "html"]:
     u = urlparse(url)
+    if u.scheme == "file" or u.path.lower().endswith((".md", ".markdown")):
+        return "pdf" if u.path.lower().endswith(".pdf") else "markdown"
     host = (u.hostname or "").removeprefix("www.").removeprefix("m.")
     parts = [p for p in u.path.split("/") if p]
     if host == "youtu.be" or (host == "youtube.com" and parts[:1] in (["watch"], ["shorts"], ["live"])) \
@@ -610,8 +613,91 @@ def capture_video(url: str, item_dir: Path, browser) -> dict:
                          check_blocked=False)
 
 
+# code first, so a $ inside code stays code; then display math (a callout's "> " prefixes inside it are stripped); then
+# inline math, Pandoc's rule: no space inside either $, no digit right after the closing one (so "$5 and $6" is prose)
+MD_MATH = re.compile(r"(```.*?```|`[^`\n]*`)|\$\$(.+?)\$\$|(?<![\\$\w])\$(?=\S)([^$\n]+?)(?<=\S)\$(?![\d$])", re.S)
+CALLOUT = re.compile(r"^\s*\[!(\w+)\][+-]?\s*")
+CALLOUT_HEAD = re.compile(r"(?m)^(\s*>\s*\[!\w+\][+-]?.*)\n(\s*>)")  # gets an empty quoted line: the title is its own <p>
+
+
+def markdown_fragment(text: str) -> tuple[str, str, list[tuple[str, bool]]]:
+    """A note's Markdown (CommonMark and GitHub's tables, as Obsidian writes it) as HTML: its title (the first `# `
+    line, dropped from the body), the body, and its TeX, each formula left as ⟦mN⟧ for MathJax to typeset into MathML."""
+    from markdown_it import MarkdownIt
+
+    maths: list[tuple[str, bool]] = []
+
+    def keep(m: re.Match) -> str:
+        if m.group(1):
+            return m.group(1)
+        tex, display = (re.sub(r"(?m)^\s*>\s?", "", m.group(2)), True) if m.group(2) else (m.group(3), False)
+        maths.append((tex.strip(), display))
+        return f"⟦m{len(maths) - 1}⟧"
+
+    title = ""
+    if m := re.search(r"(?m)^# (.+)\n?", text):
+        title, text = m.group(1).strip(), text[:m.start()] + text[m.end():]
+    text = re.sub(r"!\[\[([^\]|]+)(?:\|[^\]]*)?\]\]", lambda m: f"![]({m.group(1).replace(' ', '%20')})", text)  # embeds
+    text = re.sub(r"\[\[(?:[^\]|]*\|)?([^\]]+)\]\]", r"\1", text)  # wiki links read as their text
+    text = CALLOUT_HEAD.sub(r"\1\n\2\n\2", MD_MATH.sub(keep, text))
+    html = MarkdownIt("commonmark", {"html": True}).enable(["table", "strikethrough"]).render(text)
+    root = lxml.html.fragment_fromstring(html or "<p></p>", create_parent="div")
+    for q in root.xpath("./blockquote"):  # > [!kind] Title: a callout, its kind kept for the designer
+        first = q.find("p")
+        if first is not None and (m := CALLOUT.match(first.text or "")):
+            q.set("class", "callout")
+            q.set("data-callout", m.group(1).lower())
+            first.text = first.text[m.end():]
+            first.set("class", "callout-title")
+    for li in root.iter("li"):  # a task, "- [ ] …": the box is markup, drawn by the chapter's style
+        holder = li.find("p") if li.find("p") is not None and not (li.text or "").strip() else li
+        if m := re.match(r"\s*\[([ xX])\]\s+", holder.text or ""):
+            holder.text = holder.text[m.end():]
+            li.set("class", "task done" if m.group(1) in "xX" else "task")
+    for lst in root.xpath("./ul | ./ol"):  # one block per item: a block never breaks across pages, a long list must
+        start = int(lst.get("start", "1"))
+        for k, li in enumerate(lst.findall("li")):
+            one = lxml.html.Element(lst.tag, {"start": str(start + k)} if lst.tag == "ol" and start + k > 1 else {})
+            one.append(li)
+            lst.addprevious(one)
+        lst.drop_tree()
+    body = (root.text or "") + "".join(lxml.html.tostring(c, encoding="unicode") for c in root)
+    return title, body, maths
+
+
+def typeset(maths: list[tuple[str, bool]], browser) -> list[str]:
+    """TeX to MathML with MathJax, the way capture_html typesets a page that only had TeX."""
+    if not maths:
+        return []
+    page = browser.new_page()
+    try:
+        page.set_content(f'<script src="{MATHJAX}"></script>', wait_until="networkidle")
+        page.wait_for_function("window.MathJax && MathJax.startup && MathJax.startup.promise")
+        page.evaluate("MathJax.startup.promise")
+        out = page.evaluate("""ms => ms.map(([tex, display]) => {
+          try { return MathJax.tex2mml(tex, {display}); }
+          catch (e) { return '<math><merror><mtext>' + tex.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</mtext></merror></math>'; }
+        })""", [list(m) for m in maths])
+    finally:
+        page.close()
+    return [re.sub(r"\s*\n\s*", "", m) for m in out]
+
+
+def capture_markdown(url: str, item_dir: Path, browser) -> dict:
+    """A Markdown note, on disk (file://) or on the web: its images sit beside it, relative to the file."""
+    text = download(url).decode("utf-8", errors="replace")
+    title, body, maths = markdown_fragment(text)
+    mml = typeset(maths, browser)
+    body = re.sub(r"⟦m(\d+)⟧", lambda m: mml[int(m.group(1))], body)
+    u = urlparse(url)
+    path = Path(urllib.request.url2pathname(u.path))
+    meta = {"title": title or path.stem, "site": "your notes" if u.scheme == "file" else u.hostname or "",
+            "date": datetime.fromtimestamp(path.stat().st_mtime).strftime("%Y-%m-%d") if u.scheme == "file" else ""}
+    return meta | finish(item_dir, body, url, meta["title"], check_blocked=False)
+
+
 CAPTURERS = {"html": capture_html, "arxiv": capture_arxiv, "pdf": capture_pdf, "github": capture_github,
-             "video": capture_video}
+             "video": capture_video, "markdown": capture_markdown}
 
 
 def capture(entry: Entry, item_dir: Path, browser) -> dict:

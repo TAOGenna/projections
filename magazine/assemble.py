@@ -66,12 +66,36 @@ def expand_sources(chapter_html: str, items_dir: Path, _cache: dict | None = Non
     return X_SRC.sub(place, chapter_html)
 
 
+SPREAD = re.compile(r'<section\b[^>]*\bclass="(?:[^"]* )?spread(?: [^"]*)?"[^>]*>')
+FOLIO = re.compile(r'(<[^>]*\bclass="folio (l|r)\b[^"]*"[^>]*>)[^<]*')
+PAGE = re.compile(r"\{\{page:([\w-]+)\}\}")
+
+
+def paginate(body: str) -> str:
+    """Page numbers follow the spreads, so a chapter added or moved never means renumbering by hand: spread k holds
+    pages 2k and 2k+1, each .folio gets its page's number, and {{page:SLUG}} becomes the first page of SLUG's chapter."""
+    starts = [m.start() for m in SPREAD.finditer(body)]
+    chunks, first = [body[:starts[0] if starts else len(body)]], {}
+    for k, (a, b) in enumerate(zip(starts, starts[1:] + [len(body)])):
+        c = body[a:b]
+        if item := re.search(r'data-item="([^"]*)"', SPREAD.match(c).group(0)):
+            first.setdefault(item.group(1), 2 * k)
+        chunks.append(FOLIO.sub(lambda m: m.group(1) + str(2 * k + (m.group(2) == "r")), c))
+
+    def page(m: re.Match) -> str:
+        if m.group(1) not in first:
+            raise ValueError(f"{{{{page:{m.group(1)}}}}}: no spread has data-item={m.group(1)!r}")
+        return str(first[m.group(1)])
+
+    return PAGE.sub(page, "".join(chunks))
+
+
 def assemble(issue_dir: Path) -> Path:
     info = json.loads((issue_dir / "issue.json").read_text())
     month = datetime.strptime(info["month"], "%Y-%m").strftime("%B %Y")
     cache: dict = {}
-    body = "\n".join(expand_sources(c.read_text(), issue_dir / "items", cache)
-                     for c in sorted((issue_dir / "chapters").glob("*.html")))
+    body = paginate("\n".join(expand_sources(c.read_text(), issue_dir / "items", cache)
+                              for c in sorted((issue_dir / "chapters").glob("*.html"))))
     for name in ("reader.css", "reader.js"):
         shutil.copy(READER / name, issue_dir / name)
     index = issue_dir / "index.html"

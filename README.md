@@ -125,6 +125,11 @@ mechanical parts:
 4. **Open.** `open` opens the issue in your browser; the reader remembers the spread you stopped at, per issue. Click a row of the contents to go to its chapter, type a page number and press ⏎ to go to that page, and click the masthead at the top left of any page to go back to the contents (Back returns you), and press Home (fn ← on a Mac) to go to the front. `#s55` in the address is spread 55, `#p108` page 108.
 5. **Archive.** `archive` clears the inbox for next time.
 
+**Adding to an issue already made.** Ask for it ("add this to the magazine") and `/issue` appends instead of starting
+over: `uv run python -m magazine add <path or URL>` captures one piece into the latest issue (a Markdown note on disk
+works, Obsidian's callouts, links and `$…$` formulas included), the agent writes just that chapter and its row in the
+contents, and `assemble` renumbers every page, so nothing else is touched. The inbox also takes `file://` links.
+
 Your issues stay on your machine: `issues/` is not tracked.
 
 <table>

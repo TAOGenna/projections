@@ -2,7 +2,7 @@
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 BULLET = re.compile(r"^[-*]\s+")
 CHECKBOX = re.compile(r"^\[[ xX]\]\s+")
@@ -20,7 +20,7 @@ def _entry(line: str) -> Entry | None:
     s = CHECKBOX.sub("", BULLET.sub("", line.strip()))
     if m := MD_LINK.match(s):
         return Entry(_clean(m.group(2)), m.group(1).strip())
-    if not s.startswith(("http://", "https://", "<http")):
+    if not s.startswith(("http://", "https://", "<http", "file://")):
         return None
     cuts = [(s.find(sep), sep) for sep in SEPARATORS if sep in s]
     if cuts:
@@ -54,6 +54,8 @@ def slug_for(url: str, taken: set[str]) -> str:
     host = u.hostname or ""
     host = host.removeprefix("www.").rsplit(".", 1)[0]
     parts = [p for p in u.path.split("/") if p][-3:]
+    if u.scheme == "file":  # a note on disk is named by its file, not its folders
+        host, parts = "", [unquote(parts[-1]).rsplit(".", 1)[0]] if parts else []
     slug = re.sub(r"[^a-z0-9]+", "-", "-".join([host, *parts]).lower()).strip("-")[:48].strip("-") or "item"
     if slug not in taken:
         return slug

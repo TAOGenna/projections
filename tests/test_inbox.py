@@ -46,3 +46,10 @@ def test_urls_with_parentheses_survive():
     assert [e.url for e in parse_inbox(text)] == ["https://en.wikipedia.org/wiki/Winding_number_(complex_analysis)",
                                                  "https://en.wikipedia.org/wiki/Euler_(disambiguation)",
                                                  "https://c.com/z"]
+
+
+def test_a_note_on_disk_is_an_entry_named_by_its_file():
+    from magazine.inbox import parse_inbox, slug_for
+    url = "file:///Users/me/Research%20Ideas/thesis/Thesis%20warm-up%20problems.md"
+    assert parse_inbox(f"- {url} — the warm-ups") == [Entry(url, "the warm-ups")]
+    assert slug_for(url, set()) == "thesis-warm-up-problems"

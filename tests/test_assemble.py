@@ -24,3 +24,18 @@ def test_assemble_writes_index(tmp_path):
     html = assemble(tmp_path).read_text()
     assert "<title>Issue 1 · December 2026</title>" in html and 'href="style.css"' in html
     assert (tmp_path / "reader.js").exists() and (tmp_path / "reader.css").exists()
+
+
+def test_paginate_numbers_pages_by_spread_and_resolves_chapter_pages():
+    from magazine.assemble import paginate
+    body = ('<section class="spread" data-item="_cover"></section>'
+            '<section class="spread" data-item="_contents"><a href="#p{{page:b}}">p. {{page:b}}</a>'
+            '<div class="folio l">99</div><div class="folio r">99</div></section>'
+            '<section class="spread gutter" data-item="a"></section>'
+            '<section class="spread" data-item="b"><div class="folio l"></div><div class="folio r x">7</div></section>')
+    out = paginate(body)
+    assert '<a href="#p6">p. 6</a>' in out
+    assert '<div class="folio l">2</div><div class="folio r">3</div>' in out
+    assert '<div class="folio l">6</div><div class="folio r x">7</div>' in out
+    with pytest.raises(ValueError, match="nope"):
+        paginate('<section class="spread" data-item="a">{{page:nope}}</section>')

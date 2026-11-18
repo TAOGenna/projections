@@ -1,13 +1,15 @@
 ---
 name: issue
-description: Make this month's magazine issue from inbox.md
+description: Make this month's magazine issue from inbox.md, or add a piece (a link, a Markdown note, a PDF) to an issue already made
 ---
 
 # Make this month's issue of Projections
 
-You are the editor and the designer. You capture every link in `inbox.md`, then write the whole issue yourself as HTML, following `policies.md`. Code only does what you must not do by hand: capturing, placing the source's text verbatim, and checking.
+You are the editor and the designer. You capture every link in `inbox.md`, then write the whole issue yourself as HTML, following `policies.md`. Code only does what you must not do by hand: capturing, placing the source's text verbatim, numbering pages, and checking.
 
 Run everything from the repo root. `<month>` is `YYYY-MM` (default: this month).
+
+**Make or append?** Decide from what the user asks. "Make this month's issue", or an inbox to turn into one: follow **Steps**. "Add this to the magazine", a file or link handed over while an issue exists: follow **Appending** (to the latest issue unless they name one). Ask only if you can't tell.
 
 ## The contract
 
@@ -20,9 +22,9 @@ Run everything from the repo root. `<month>` is `YYYY-MM` (default: this month).
 - Every spread is `<section class="spread" data-item="SLUG">…</section>`, 1600 × 1000 px. The cover, contents and back use `data-item="_cover"`, `"_contents"` and `"_back"`. Every captured item (readable or not) needs at least one spread with its slug.
 - The source's words appear only through `<x-src item="SLUG" from="A" to="B"></x-src>` or `<x-src item="SLUG" b="N"></x-src>`. Assembly replaces each with those blocks, verbatim. Never type the source's words yourself.
 - Your own words always sit inside an element with class `editor`.
-- Every page number is printed in an element with class `folio`, two pages to a spread, the front being pages 0–1. The reader finds a typed page number by these.
+- Every page number is printed in an empty `<div class="folio l"></div>` / `<div class="folio r"></div>`: `assemble` writes the numbers, two pages to a spread, the front being pages 0–1. The reader finds a typed page number by these.
 - Every page but the openers carries running heads: `<div class="runhead l">Projections · Nº NN</div>` on the left page and the chapter's title in `runhead r`. The reader makes the left one, the masthead, a way back to the contents.
-- Each contents row links to its chapter's first page: `<a href="#p<page>">`. Make the row's numeral and title links, both to the page the row prints.
+- Each contents row links to its chapter's first page and prints it with `{{page:SLUG}}`, which `assemble` replaces: `<a href="#p{{page:SLUG}}">`, `p. {{page:SLUG}}`. Make the row's numeral and title links. Never type a page number: a chapter added or moved would leave it wrong.
 - An image that couldn't be downloaded keeps its original link and `data-missing="1"`. Leave it placed: the check doesn't count it as broken.
 - Paths in chapters are relative to `issues/<month>/`: item images are `items/<slug>/img/…`, and the front drawing is `../../assets/front.jpg`.
 
@@ -51,6 +53,17 @@ Run everything from the repo root. `<month>` is `YYYY-MM` (default: this month).
    - Look at `proofs/*.png`, one per spread, and fix whatever reads badly against `policies.md`: cramped columns, orphaned headings, a frame that drifted, an item that lost its world.
    - Once it prints `ok`, run `uv run python -m magazine pdf`. It prints the issue as `issues/<month>/projections-NN.pdf`, one 8 × 10in page per page: every spread cut at the gutter, the cover's right half as the front. It is the same layout the browser prints, so ⌘P and an issue published as an artifact export the same single pages.
 7. **Hand it over.** Run `uv run python -m magazine open` to open the issue in the user's browser, and tell them it is at `issues/<month>/index.html` (← → turn spreads, ⌘+ ⌘− zoom in and out), that the single-page PDF is at `issues/<month>/projections-NN.pdf` and that `uv run python -m magazine open` brings it back any time, at the spread they stopped on (`open YYYY-MM` for an earlier issue). Only after they confirm, run `uv run python -m magazine archive` to move the used lines out of `inbox.md`.
+
+## Appending to an issue already made
+
+One chapter's work, not an issue's: the other chapters stay as they are.
+
+1. **Capture.** `uv run python -m magazine add <path-or-url> [--note "…"] [--month YYYY-MM]`, once per piece. A path on disk becomes a `file://` link; a Markdown note (Obsidian's included: callouts become `blockquote.callout[data-callout]`, wiki links their text, `$…$` MathML) has no screenshot or palette, so its world comes from its own content. It prints the slug and block count. The inbox isn't touched.
+2. **Read the house.** `policies.md`, the issue's `style.css`, `01-contents.html`, `99-back.html` and the chapter before where the new one goes.
+3. **Plan and write the chapter** as in Steps 3–5, for this item only, and add it to `plan.md`. Don't guess block ranges: write the chapter's `<style>` and opener, `assemble` once, then `uv run python -m magazine fit <slug> <first> <last> [--box "flow pair W"]` prints the ranges that fill one box each, measured in the real page (`--box "flow l one W"` for a single page's column). Name it to sit where it belongs: after the last item and before `99-back.html` unless the user says otherwise (`13-<slug>.html` after `12-…`). Its numeral follows the last one in the contents.
+4. **Add its contents row**, with `{{page:SLUG}}`. If the rows no longer fit, re-space them (or give the contents a second spread); don't shrink type below the house size. Update the back's colophon if it counts the items.
+5. **Assemble, bake, check, pdf**, as in Step 6. Look at the new chapter's proofs and the contents'.
+6. **Hand it over** as in Step 7, naming the new chapter's first page. No `archive`: nothing came from the inbox. (If it did, archive as usual.)
 
 ## Never
 

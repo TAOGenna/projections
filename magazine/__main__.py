@@ -1,4 +1,4 @@
-"""python -m magazine start | recapture | assemble | bake | check | pdf | open | archive"""
+"""python -m magazine start | add | recapture | assemble | fit | bake | check | pdf | open | archive"""
 import argparse
 import json
 import sys
@@ -40,6 +40,16 @@ def cmd_start(args) -> None:
         print(f"{m.get('slug', '?')}  {m.get('kind', '?')}  {m.get('status', '?')}  {m.get('blocks', 0)}  {m.get('reason', '')}")
 
 
+def cmd_add(args) -> None:
+    """Captures one link or file into an issue that already exists (the latest unless a month is given), or starts
+    that month's issue: the inbox isn't read or changed."""
+    from magazine.capture import capture_all
+    path = Path(args.source).expanduser()
+    url = path.resolve().as_uri() if path.exists() else args.source
+    for m in capture_all([Entry(url, args.note)], ISSUES / args.month if args.month else issue_dir(None)):
+        print(f"{m.get('slug', '?')}  {m.get('kind', '?')}  {m.get('status', '?')}  {m.get('blocks', 0)}  {m.get('reason', '')}")
+
+
 def cmd_recapture(args) -> None:
     from magazine.capture import recapture
     m = recapture(issue_dir(args.month), args.slug, args.url)
@@ -50,6 +60,11 @@ def cmd_assemble(args) -> None:
     from magazine.assemble import assemble
     index = assemble(issue_dir(args.month))
     print(f"wrote {index.relative_to(ROOT)}")
+
+
+def cmd_fit(args) -> None:
+    from magazine.fit import fit
+    print(" ".join(f"{a}-{b}" for a, b in fit(issue_dir(args.month), args.slug, args.first, args.last, args.box)))
 
 
 def cmd_bake(args) -> None:
@@ -88,9 +103,19 @@ def main(argv=None) -> None:
     s = sub.add_parser("start", help="capture every inbox link into issues/<month>/items/")
     s.add_argument("--month", default=date.today().strftime("%Y-%m"))
     s.add_argument("--force", action="store_true", help="capture again even if already captured")
+    s = sub.add_parser("add", help="capture one link or file (a Markdown note, a PDF) into an issue")
+    s.add_argument("source", help="a URL or a path on disk")
+    s.add_argument("--note", default="")
+    s.add_argument("--month", default=None, help="YYYY-MM (default: the latest issue)")
     s = sub.add_parser("recapture", help="capture URL into an item's folder in place of the link as saved")
     s.add_argument("slug")
     s.add_argument("url")
+    s.add_argument("--month", default=None, help="YYYY-MM (default: the latest issue)")
+    s = sub.add_parser("fit", help="print the block ranges that fill one column box each, measured in the page")
+    s.add_argument("slug")
+    s.add_argument("first", type=int)
+    s.add_argument("last", type=int)
+    s.add_argument("--box", default="flow pair W", help='the box\'s classes (default "flow pair W": a spread)')
     s.add_argument("--month", default=None, help="YYYY-MM (default: the latest issue)")
     for name in ("assemble", "bake", "check", "pdf", "open", "archive"):
         s = sub.add_parser(name)
@@ -98,7 +123,7 @@ def main(argv=None) -> None:
         if name == "check":
             s.add_argument("--shots", action="store_true", help="also save proofs/NN.png per spread")
     args = p.parse_args(argv)
-    commands = {"start": cmd_start, "recapture": cmd_recapture, "assemble": cmd_assemble, "bake": cmd_bake, "check": cmd_check, "pdf": cmd_pdf,
+    commands = {"start": cmd_start, "add": cmd_add, "recapture": cmd_recapture, "assemble": cmd_assemble, "fit": cmd_fit, "bake": cmd_bake, "check": cmd_check, "pdf": cmd_pdf,
                 "open": cmd_open, "archive": cmd_archive}
     if args.cmd not in commands:
         sys.exit(f"`{args.cmd}` is not built yet")

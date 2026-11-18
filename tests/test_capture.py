@@ -88,3 +88,18 @@ def test_capture_all_never_reuses_another_links_folder(tmp_path, monkeypatch):
     capture_all([Entry("https://www.youtube.com/watch?v=B"), Entry("https://www.youtube.com/watch?v=A")], tmp_path)
     assert calls == ["https://www.youtube.com/watch?v=B"]
     assert json.loads((tmp_path / "items" / "youtube-watch" / "meta.json").read_text())["url"].endswith("v=A")
+
+
+def test_markdown_note_title_math_callouts_lists():
+    from magazine.capture import kind_of, markdown_fragment
+    assert kind_of("file:///a/b.md") == "markdown" and kind_of("https://x.org/notes.md") == "markdown"
+    title, body, maths = markdown_fragment(
+        "# The title\n\nCosts $5 and $6, see [[Other note|that note]]; $\\rho$cm and `$code$`.\n\n"
+        "> [!important] Hinges\n> Sort them.\n> 1. one\n\n$$\na^2\n$$\n\n3. three\n4. four\n\n- [ ] todo\n- [x] done\n")
+    assert title == "The title" and "The title" not in body
+    assert maths == [("\\rho", False), ("a^2", True)]
+    assert "Costs $5 and $6, see that note; ⟦m0⟧cm and <code>$code$</code>." in body
+    assert '<blockquote class="callout" data-callout="important">' in body
+    assert '<p class="callout-title">Hinges</p>' in body and "<ol>" in body  # the list inside the callout is a list
+    assert '<ol start="3"><li>three</li></ol><ol start="4"><li>four</li></ol>' in body.replace("\n</ol>", "</ol>")
+    assert '<li class="task">todo</li>' in body and '<li class="task done">done</li>' in body
