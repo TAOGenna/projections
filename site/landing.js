@@ -27,7 +27,10 @@ document.addEventListener('click', e => {
 });
 box.querySelector('.lb-close').onclick = close;
 box.addEventListener('click', e => { if (e.target === box) close(); });
-addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+addEventListener('keydown', e => {
+  if (e.key === 'Escape') close();
+  else if (e.key === 'Enter' && e.target.dataset?.s) openIssue(e.target.dataset.s);  // a focused issue opens like a click
+});
 addEventListener('message', e => { if (e.data === 'projections:close') close(); });  // Esc pressed inside the issue
 
 for (const b of document.querySelectorAll('.copy')) b.onclick = async () => {

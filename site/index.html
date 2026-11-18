@@ -21,20 +21,8 @@
               radial-gradient(calc(900px * var(--s, 1)) calc(300px * var(--s, 1)) at calc(50% + 350px * var(--s, 1)) calc(50% + 400px * var(--s, 1)), var(--glow2), transparent 70%); }
 body > .grain { position: fixed; }
 .canvas { overflow: visible; }  /* nothing is clipped at the page's edge: the shadow and an open issue may spill */
-.stage { position: absolute; left: 1105px; top: 205px; transform: scale(.5); transform-origin: 0 0; cursor: pointer;
+.take { position: absolute; left: 691.7px; top: 48.3px; width: 868px; height: 701.3px;  /* filmed by making/take.py */
   z-index: 2; }  /* the issue floats in front of everything: the glass never has it behind, so never keeps a trace of it */
-.mag-scene { position: absolute; left: 0; top: 0; perspective: 2600px; perspective-origin: 0 500px; }
-.mag { position: absolute; left: 0; top: 0; transform-style: preserve-3d; transform-origin: 0 500px;
-  transform: rotateX(calc(16deg - var(--py, 0) * 7deg)) rotateY(calc(-26deg + var(--px, 0) * 12deg)) rotateZ(-3deg)
-    translateX(calc((var(--open, 0) - 1) * 400px)); }  /* closed, the cover sits where the open spread will be centred */
-.strip, .block { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
-.strip { height: 1000px; background-repeat: no-repeat; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.strip::after { content: ""; position: absolute; inset: 0;  /* the light on this strip: set per frame, the page image stays */
-  background: linear-gradient(to bottom, rgba(255, 250, 240, .05), rgba(20, 14, 8, .1)), linear-gradient(to right, var(--t0), var(--t1)); }
-.block { background: repeating-linear-gradient(to bottom, #f1ece2 0 1.2px, #c8c0b1 1.2px 2.2px); }
-.block.fore { background: repeating-linear-gradient(to right, #f1ece2 0 1.2px, #c8c0b1 1.2px 2.2px); }
-.issue-cap button { all: unset; cursor: pointer; color: var(--body); border-bottom: 1px solid var(--line); }
-.issue-cap button:hover { color: var(--ink); border-color: var(--ink); }
 /* the cover's drawing, imprinted across the page: its lines only, a mask in --lines, so the ground can be any colour */
 .imprint { position: fixed; inset: 0; background: var(--lines);
   -webkit-mask: url(landing/lines.webp) center / cover no-repeat; mask: url(landing/lines.webp) center / cover no-repeat; }
@@ -56,7 +44,11 @@ body > .grain { position: fixed; }
 <div class="grain"></div>
 <div class="canvas">
   <div class="cast"></div>
-  <div class="stage" id="stage" role="button" tabindex="0" aria-label="Nº 00, a sample issue: open it and turn its pages"></div>
+  <video class="take" data-s="1" autoplay muted loop playsinline poster="landing/take.webp?v=1" tabindex="0" role="button"
+    aria-label="Nº 00, a sample issue: open it and turn its pages">
+    <source src="landing/take.mov?v=1" type="video/quicktime">  <!-- Safari: HEVC with alpha; the others skip it -->
+    <source src="landing/take.webm?v=1" type="video/webm">
+  </video>
 
   <div class="box">
     <h1>Projections</h1>
@@ -75,34 +67,10 @@ body > .grain { position: fixed; }
     </div>
   </div>
 
-  <div class="cap issue-cap" id="cap" style="left:1140px;top:905px;text-align:right;width:400px"></div>
+  <div class="cap" data-s="1" style="left:1140px;top:905px;text-align:right;width:400px">Nº 00, a sample issue<small>click it to open: twenty-nine spreads, read in full</small></div>
   <p class="links" style="left:1240px;top:956px;text-align:right;width:300px"><a href="https://github.com/TAOGenna/projections">The repository</a> ·
     <a href="https://taogenna.github.io">taogenna.github.io</a></p>
 </div>
 <script src="landing.js?v=94bffbba"></script>
-<script type="module">
-import { book } from './landing/magazine.js?v=94bffbba';
-const PV = '107d3f1a';  // the pages' version: a new render reaches every browser
-const COUNT = 29, stage = document.getElementById('stage'), cap = document.getElementById('cap');
-const issue = book(stage, {
-  count: COUNT, pages: (k, side) => `landing/pages/s${String(k).padStart(2, '0')}-${side}.jpg?v=${PV}`,
-  onchange: k => {  // what the caption says depends on where the issue is open
-    cap.innerHTML = k === 1
-      ? 'Nº 00, a sample issue<small>click it to open: twenty-nine spreads, read in full</small>'
-      : `Pages ${2 * k - 2}–${2 * k - 1} of ${2 * COUNT}<small>click a page or use ← → · <button id="full">full screen</button> · <button id="shut">close</button></small>`;
-    document.getElementById('full')?.addEventListener('click', () => openFull(k));
-    document.getElementById('shut')?.addEventListener('click', () => issue.close());
-  },
-});
-function openFull(k) {  // the reader over the page, at the same spread
-  const el = Object.assign(document.createElement('span'), { hidden: true });
-  el.dataset.s = k; document.body.append(el); el.click(); el.remove();
-}
-stage.addEventListener('click', e => { if (issue.spread === 1 || e.clientX > issue.spine()) issue.next(); else issue.prev(); });
-addEventListener('keydown', e => {
-  if (document.querySelector('.lightbox.on')) return;
-  if (e.key === 'ArrowRight') issue.next(); else if (e.key === 'ArrowLeft') issue.prev(); else if (e.key === 'Enter' && issue.spread === 1) issue.next();
-});
-</script>
 </body>
 </html>

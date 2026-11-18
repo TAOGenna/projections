@@ -1,0 +1,35 @@
+<!doctype html>
+<!-- The issue alone on a clear ground, for take.py to film: the landing plays the take instead of building the 3D
+     object live. Same stage as the landing had (scale .5), the pointer's tilt left at rest. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+html, body { margin: 0; background: transparent; overflow: hidden; }
+.stage { position: absolute; left: 640px; top: 350px; transform: scale(.5); transform-origin: 0 0; }
+.mag-scene { position: absolute; left: 0; top: 0; perspective: 2600px; perspective-origin: 0 500px; }
+.mag { position: absolute; left: 0; top: 0; transform-style: preserve-3d; transform-origin: 0 500px;
+  transform: rotateX(calc(16deg - var(--py, 0) * 7deg)) rotateY(calc(-26deg + var(--px, 0) * 12deg)) rotateZ(-3deg)
+    translateX(calc((var(--open, 0) - 1) * 400px)); }  /* closed, the cover sits where the open spread will be centred */
+.strip, .block { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.strip { height: 1000px; background-repeat: no-repeat; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.strip::after { content: ""; position: absolute; inset: 0;  /* the light on this strip: set per frame, the page image stays */
+  background: linear-gradient(to bottom, rgba(255, 250, 240, .05), rgba(20, 14, 8, .1)), linear-gradient(to right, var(--t0), var(--t1)); }
+.block { background: repeating-linear-gradient(to bottom, #f1ece2 0 1.2px, #c8c0b1 1.2px 2.2px); }
+.block.fore { background: repeating-linear-gradient(to right, #f1ece2 0 1.2px, #c8c0b1 1.2px 2.2px); }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"></div>
+<script type="module">
+import { book } from '../landing/magazine.js';
+const COUNT = 29, page = (k, side) => `../landing/pages/s${String(k).padStart(2, '0')}-${side}.jpg`;
+// every page decoded before the first frame, so no frame catches a page still loading
+const imgs = [];
+for (let k = 1; k <= COUNT; k++) for (const s of 'lr') { const i = new Image(); i.src = page(k, s); imgs.push(i); }
+await Promise.all(imgs.map(i => i.decode().catch(() => {})));
+window.issue = book(document.getElementById('stage'), { count: COUNT, pages: page });
+window.ready = true;
+</script>
+</body>
+</html>

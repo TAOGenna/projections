@@ -104,7 +104,7 @@ uv run python -m magazine open 2026-11    # an earlier one
 
 <p align="center">
   <img src="docs/readme/landing-open.jpg" alt="The landing with the sample issue open on chapter I" width="100%">
-  <br><sub>On the site, Nº 00 floats closed on its cover; it opens and turns right there, page by page</sub>
+  <br><sub>On the site, Nº 00 opens and turns on its own, a looping take of the 3D issue; click it to read the whole issue</sub>
 </p>
 
 <br>
